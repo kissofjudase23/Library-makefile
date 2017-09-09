@@ -1,5 +1,5 @@
-SHELL := /bin/bash
-SHELL_COMMAND :=
+
+DEFAULT_SHELL ?= "/bin/bash"
 
 # build a docker image from the docker file
 docker_build:
@@ -8,16 +8,21 @@ docker_build:
 		-f $(DOCKERFILE) .
 
 # create a container and allocate a pseudo tty for debug
+# note: assume the ENTRYPOINT=["/bin/bash", "-c""]
 docker_debug_run:
 	docker run --rm \
 		-v $(HOST_PATH):$(GUEST_PATH) \
-		-i --tty $(DOCKER_REPO):$(DOCKER_TAG) $(SHELL)
+		-w $(GUEST_PATH) \
+		-i --tty $(DOCKER_REPO):$(DOCKER_TAG) \
+		$(DEFAULT_SHELL)
 
-# create a container and run your test command via bash
+# create a container and run your test command via CMD
+# note: CMD should match the setting of ENTRYPOINT in your dockerfile
 docker_internal_run:
 	docker run --rm \
-	-v $(HOST_PATH):$(GUEST_PATH) \
-	-i $(DOCKER_REPO):$(DOCKER_TAG) $(SHELL) $(SHELL_COMMAND)
+		-v $(HOST_PATH):$(GUEST_PATH) \
+		-w $(GUEST_PATH) \
+		-i $(DOCKER_REPO):$(DOCKER_TAG) $(TEST_COMMAND)
 
 # remove dangling docker images
 docker_dangling_rmi:

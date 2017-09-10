@@ -24,6 +24,14 @@ docker_internal_run:
 		-w $(GUEST_PATH) \
 		-i $(DOCKER_REPO):$(DOCKER_TAG) $(TEST_COMMAND)
 
+# run docker with daemon mode
+docker_internal_daemon_run:
+	docker run --rm \
+	-d \
+	-v $(HOST_PATH):$(GUEST_PATH) \
+	-w $(GUEST_PATH) \
+	-p $(HOST_PORT):$(GUEST_PORT) \
+	$(DOCKER_REPO):$(DOCKER_TAG) $(TEST_COMMAND)
 # remove dangling docker images
 docker_dangling_rmi:
 	docker images -aq \

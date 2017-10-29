@@ -9,8 +9,8 @@ docker_build:
 
 # create a container and allocate a pseudo tty for debug
 # note: assume the ENTRYPOINT=["/bin/bash", "-c""]
-docker_debug_run:
-	docker run --rm \
+docker_run_debug:
+	-docker run --rm \
 		-v $(HOST_PATH):$(GUEST_PATH) \
 		-w $(GUEST_PATH) \
 		-i --tty $(DOCKER_REPO):$(DOCKER_TAG) \
@@ -18,28 +18,41 @@ docker_debug_run:
 
 # create a container and run your test command via CMD
 # note: CMD should match the setting of ENTRYPOINT in your dockerfile
-docker_internal_run:
+docker_run:
 	docker run --rm \
 		-v $(HOST_PATH):$(GUEST_PATH) \
 		-w $(GUEST_PATH) \
 		-i $(DOCKER_REPO):$(DOCKER_TAG) $(TEST_COMMAND)
 
 # run docker with daemon mode
-docker_internal_daemon_run:
-	docker run --rm \
+docker_run_daemon:
+	-docker run --rm \
 	-d \
 	-v $(HOST_PATH):$(GUEST_PATH) \
 	-w $(GUEST_PATH) \
 	-p $(HOST_PORT):$(GUEST_PORT) \
 	$(DOCKER_REPO):$(DOCKER_TAG) $(TEST_COMMAND)
+
+docker_inspect:
+	docker ps -a | \
+	grep "$(DOCKER_REPO):$(DOCKER_TAG)" | \
+	awk 'BEGIN {FS= " "} NR==1 {print $$1}' | \
+	xargs docker inspect
+
+docker_stop:
+	docker ps -a | \
+	grep "$(DOCKER_REPO):$(DOCKER_TAG)" | \
+	awk 'BEGIN {FS= " "} NR==1 {print $$1}' | \
+	xargs docker stop
+
 # remove dangling docker images
-docker_dangling_rmi:
+docker_rmi_dangling:
 	docker images -aq \
 		--no-trunc \
 		--filter "dangling=true" | xargs docker rmi
 
 # remove all docker images, use this command carefully
-docker_all_rmi:
+docker_rmi_all:
 	docker images -aq \
 		--no-trunc | xargs docker rmi
 

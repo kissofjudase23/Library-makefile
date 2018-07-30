@@ -21,7 +21,7 @@ docker_run_debug:
 docker_run:
 	docker run --rm \
 		-v $(HOST_PATH):$(GUEST_PATH) \
-		-i $(DOCKER_REPO):$(DOCKER_TAG) $(TEST_COMMAND)
+		 $(DOCKER_REPO):$(DOCKER_TAG) $(TEST_COMMAND)
 
 # run docker with daemon mode
 docker_run_daemon:
